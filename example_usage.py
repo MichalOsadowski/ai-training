@@ -153,6 +153,14 @@ def run_example(example_number, api_key, verbose=False):
             "example_usage": "bash line_counter.sh 'Single line text'",
             "output_dir": "./docker_output_bash",
             "verbose": True
+        },
+        4: {
+            "name": "Advanced Python Script (with custom settings)",
+            "script_path": "../Jit-ai-challenge/word_reverser.py",
+            "example_usage": "python word_reverser.py 'Hello World'",
+            "output_dir": "./docker_output_advanced",
+            "budget_limit": "0.10",
+            "verbose": True
         }
     }
     

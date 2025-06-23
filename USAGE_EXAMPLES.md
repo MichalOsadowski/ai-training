@@ -200,13 +200,11 @@ python3 -c "import openai; openai.api_key='sk-your-key'; print('Key valid')"
 
 The tool includes built-in budget tracking:
 
-- **Default Budget**: $0.10 (10 cents) per run - sufficient for most scripts
-- **Typical Costs**: $0.01-$0.05 per simple script, $0.02-$0.08 for complex ones
-- **Cost Factors**: Script complexity, number of refinement iterations needed
-- **Tracking**: Real-time cost monitoring with detailed breakdowns
+- **Default Budget**: $0.10 per run
+- **Typical Costs**: $0.01-$0.50 per script
+- **Cost Factors**: Script complexity, iterations needed
+- **Tracking**: Real-time cost monitoring
 - **Protection**: Automatic stop if budget exceeded
-
-The conservative 10-cent default ensures cost control while allowing successful processing of most scripts.
 
 Example cost output:
 
@@ -221,7 +219,7 @@ Example cost output:
 2. **Use Specific Output Dirs**: Each script should have its own output directory
 3. **Start with Verbose**: Use `--verbose` flag to understand what's happening
 4. **Check Prerequisites**: Run `--check` before your first attempt
-5. **Budget Conservatively**: The 10-cent default is usually sufficient, increase only if needed
+5. **Budget Conservatively**: Start with lower budget limits for testing
 
 ## 🔄 Workflow Integration
 
