@@ -10,6 +10,7 @@ import logging
 
 from langgraph.graph import StateGraph, END
 from langchain.schema import BaseMessage
+from langgraph.graph.state import CompiledStateGraph
 from pydantic import BaseModel
 
 from .agents.script_analyzer import ScriptAnalyzer
@@ -63,7 +64,7 @@ class WorkflowResult:
     success: bool
     dockerfile_path: Optional[str] = None
     image_name: Optional[str] = None
-    validation_results: List[Dict] = None
+    validation_results: Optional[List[Dict]] = None
     total_cost: float = 0.0
     error: Optional[str] = None
 
@@ -86,7 +87,7 @@ class DockerfileGeneratorWorkflow:
         # Build the workflow graph
         self.graph = self._build_graph()
     
-    def _build_graph(self) -> StateGraph:
+    def _build_graph(self) -> CompiledStateGraph:
         """Build the LangGraph workflow."""
         
         workflow = StateGraph(WorkflowState)
@@ -176,6 +177,8 @@ class DockerfileGeneratorWorkflow:
             if self.verbose:
                 print("🐳 Generating Dockerfile...")
             
+            assert state.language is not None and state.base_image is not None, "Analysis must complete before generation"
+            
             dockerfile_content = await self.dockerfile_generator.generate(
                 language=state.language,
                 runtime_version=state.runtime_version,
@@ -224,6 +227,8 @@ class DockerfileGeneratorWorkflow:
             if self.verbose:
                 print("🔨 Building Docker image...")
             
+            assert state.dockerfile_path is not None, "Dockerfile must be generated before building"
+            
             build_result = await self.docker_builder.build_image(
                 dockerfile_path=state.dockerfile_path,
                 context_dir=state.output_dir,
@@ -254,6 +259,8 @@ class DockerfileGeneratorWorkflow:
         try:
             if self.verbose:
                 print("✅ Validating Docker image...")
+            
+            assert state.image_name is not None, "Image must be built before validation"
             
             validation_result = await self.validator.validate(
                 image_name=state.image_name,
@@ -319,6 +326,8 @@ class DockerfileGeneratorWorkflow:
             
             if self.verbose:
                 print(f"🔧 Refining Dockerfile (attempt {state.refinement_count + 1})...")
+            
+            assert state.dockerfile_content is not None, "Dockerfile content must exist before refinement"
             
             refinement = await self.refinement_agent.refine(
                 original_dockerfile=state.dockerfile_content,

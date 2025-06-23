@@ -44,7 +44,7 @@ def show_usage(api_key=None):
     print("  --script-path ../Jit-ai-challenge/word_reverser.py \\")
     print("  --example-usage \"python word_reverser.py 'Hello World'\" \\")
     print("  --output-dir ./docker_output_advanced \\")
-    print("  --budget-limit 0.10 \\")
+    print("  --budget 0.10 \\")
     print("  --verbose")
     
     print("\n📋 Prerequisites:")
@@ -159,7 +159,7 @@ def run_example(example_number, api_key, verbose=False):
             "script_path": "../Jit-ai-challenge/word_reverser.py",
             "example_usage": "python word_reverser.py 'Hello World'",
             "output_dir": "./docker_output_advanced",
-            "budget_limit": "0.10",
+            "budget": "0.10",
             "verbose": True
         }
     }
@@ -190,7 +190,7 @@ def run_example(example_number, api_key, verbose=False):
     
     # Add advanced options for example 4
     if example_number == 4:
-        cmd.extend(["--budget-limit", example['budget_limit']])
+        cmd.extend(["--budget", example['budget']])
         cmd.append("--verbose")
     elif verbose:
         cmd.append("--verbose")
