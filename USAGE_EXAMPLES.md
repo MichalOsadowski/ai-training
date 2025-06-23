@@ -16,7 +16,7 @@ python3 example_usage.py
 python3 example_usage.py --check
 
 # Run a specific example (requires API key)
-python3 example_usage.py --api-key sk-your-openai-key --run-example 1
+python3 example_usage.py --api-key sk-your-key --run-example 1
 
 # Run with verbose output
 python3 example_usage.py --api-key sk-your-key --run-example 2 --verbose
@@ -71,7 +71,7 @@ python3 main.py \
 | `--script-path`   | Path to script to dockerize (required) | -                 |
 | `--example-usage` | Example command for validation         | None              |
 | `--output-dir`    | Output directory for generated files   | `./docker_output` |
-| `--budget-limit`  | Maximum budget in USD                  | `0.10`            |
+| `--budget`        | Maximum budget in USD                  | `0.10`            |
 | `--verbose`       | Enable verbose output                  | False             |
 
 ### Example Runner (`example_usage.py`)
@@ -125,7 +125,7 @@ python3 main.py \
   --api-key sk-your-key \
   --script-path ./my_script.py \
   --output-dir ./custom_output \
-  --budget-limit 1.0 \
+  --budget 1.0 \
   --verbose
 ```
 
@@ -233,7 +233,7 @@ Example cost output:
       --api-key ${{ secrets.OPENAI_API_KEY }} \
       --script-path ./app.py \
       --output-dir ./docker \
-      --budget-limit 1.0
+      --budget 1.0
 ```
 
 ### Development Workflow

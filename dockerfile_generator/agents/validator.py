@@ -3,11 +3,9 @@ Validation Agent - Tests Docker images against expected behavior.
 """
 
 import asyncio
-import re
 import shlex
 from typing import List, Dict, Any, Optional
 from dataclasses import dataclass
-from pathlib import Path
 
 from .docker_builder import DockerBuilder
 

@@ -73,7 +73,7 @@ python3 main.py \
   --script-path ../Jit-ai-challenge/word_reverser.py \
   --example-usage "python word_reverser.py 'Hello World'" \
   --output-dir ./output \
-  --budget-limit 2.0 \
+  --budget 2.0 \
   --verbose
 ```
 
@@ -85,7 +85,7 @@ python3 main.py \
 | `--script-path`   | Path to script to dockerize (required) | -                 |
 | `--example-usage` | Example command for validation         | None              |
 | `--output-dir`    | Output directory for generated files   | `./docker_output` |
-| `--budget-limit`  | Maximum budget in USD                  | `0.10`            |
+| `--budget`  | Maximum budget in USD                  | `0.10`            |
 | `--verbose`       | Enable verbose output                  | False             |
 
 ## 📊 Examples

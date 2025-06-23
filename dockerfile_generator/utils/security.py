@@ -3,9 +3,7 @@ Security utilities for input validation and prompt injection protection.
 """
 
 import re
-import os
 from pathlib import Path
-from typing import List, Set
 
 class SecurityValidator:
     """Validates inputs and protects against security issues."""

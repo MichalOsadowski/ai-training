@@ -3,14 +3,15 @@ Docker Builder Agent - Handles Docker image building and management.
 """
 
 import docker
-import asyncio
 import uuid
 import tempfile
 import shutil
 from pathlib import Path
-from typing import Optional, Dict, Any
+from typing import Optional, Dict, Any, List, cast
 from dataclasses import dataclass
 import logging
+from docker.client import DockerClient
+from docker import errors as docker_errors
 
 @dataclass
 class BuildResult:
@@ -21,11 +22,14 @@ class BuildResult:
     error: Optional[str] = None
     build_time: float = 0.0
 
+# Type alias for build logs
+BuildLogEntry = Dict[str, str]
+
 class DockerBuilder:
     """Handles Docker operations for building and testing images."""
     
     def __init__(self):
-        self.client = None
+        self.client: Optional[DockerClient] = None
         self.logger = logging.getLogger(__name__)
         self._initialize_client()
     
@@ -59,7 +63,9 @@ class DockerBuilder:
             start_time = time.time()
             
             # Build image
-            logs = []
+            logs: List[str] = []
+            if not self.client:
+                raise Exception("Docker client not initialized")
             image, build_logs = self.client.images.build(
                 path=build_context,
                 tag=image_name,
@@ -72,10 +78,12 @@ class DockerBuilder:
             
             # Collect logs
             for log in build_logs:
-                if 'stream' in log:
-                    logs.append(log['stream'].strip())
-                elif 'error' in log:
-                    logs.append(f"ERROR: {log['error']}")
+                if isinstance(log, dict):
+                    log_dict = cast(Dict[str, str], log)
+                    if 'stream' in log_dict:
+                        logs.append(str(log_dict['stream']).strip())
+                    elif 'error' in log_dict:
+                        logs.append(f"ERROR: {str(log_dict['error'])}")
             
             build_time = time.time() - start_time
             logs_str = '\n'.join(logs)
@@ -89,17 +97,19 @@ class DockerBuilder:
                 build_time=build_time
             )
             
-        except docker.errors.BuildError as e:
+        except docker_errors.BuildError as e:
             error_msg = f"Docker build failed: {str(e)}"
             logs = []
             
             # Extract build logs from error
             if hasattr(e, 'build_log'):
                 for log in e.build_log:
-                    if 'stream' in log:
-                        logs.append(log['stream'].strip())
-                    elif 'error' in log:
-                        logs.append(f"ERROR: {log['error']}")
+                    if isinstance(log, dict):
+                        log_dict = cast(Dict[str, str], log)
+                        if 'stream' in log_dict:
+                            logs.append(str(log_dict['stream']).strip())
+                        elif 'error' in log_dict:
+                            logs.append(f"ERROR: {str(log_dict['error'])}")
             
             logs_str = '\n'.join(logs) if logs else str(e)
             
@@ -193,6 +203,8 @@ node_modules/
         
         container = None
         try:
+            if not self.client:
+                raise Exception("Docker client not initialized")
             container = self.client.containers.run(
                 image=image_name,
                 command=command,
@@ -217,11 +229,11 @@ node_modules/
                 'error': logs if exit_code != 0 else None
             }
             
-        except docker.errors.ContainerError as e:
+        except docker_errors.ContainerError as e:
             return {
                 'success': False,
                 'exit_code': e.exit_status,
-                'output': e.stderr.decode('utf-8') if e.stderr else "",
+                'output': e.stderr.decode('utf-8') if isinstance(e.stderr, bytes) else str(e.stderr) if e.stderr else "",
                 'error': f"Container error: {str(e)}"
             }
             
@@ -244,6 +256,8 @@ node_modules/
     def cleanup_image(self, image_name: str) -> bool:
         """Remove Docker image."""
         try:
+            if not self.client:
+                raise Exception("Docker client not initialized")
             self.client.images.remove(image_name, force=True)
             self.logger.info(f"Removed image: {image_name}")
             return True
@@ -254,6 +268,8 @@ node_modules/
     def list_images(self) -> list:
         """List all images with dockerfile-generator prefix."""
         try:
+            if not self.client:
+                raise Exception("Docker client not initialized")
             images = self.client.images.list()
             generator_images = []
             

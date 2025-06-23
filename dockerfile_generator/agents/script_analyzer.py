@@ -3,7 +3,6 @@ Script Analysis Agent - Analyzes scripts to determine runtime requirements.
 """
 
 import re
-import os
 from pathlib import Path
 from typing import List, Optional, Dict, Any
 from dataclasses import dataclass
@@ -18,8 +17,8 @@ class ScriptAnalysis:
     dependencies: List[str]
     recommended_base_image: str
     entry_command: str
-    additional_packages: List[str] = None
-    environment_vars: Dict[str, str] = None
+    additional_packages: Optional[List[str]] = None
+    environment_vars: Optional[Dict[str, str]] = None
 
 class ScriptAnalyzer:
     """Analyzes scripts to determine Docker requirements."""
@@ -99,7 +98,7 @@ class ScriptAnalyzer:
         # For files without recognized extensions, check content patterns
         # but only for supported languages
         content_lower = content.lower()
-        scores = {}
+        scores: Dict[str, int] = {}
         
         for language, patterns in self.LANGUAGE_PATTERNS.items():
             score = 0
@@ -110,7 +109,7 @@ class ScriptAnalyzer:
         
         # Return language with highest score, but only if it has a reasonable score
         if scores and max(scores.values()) > 0:
-            detected = max(scores, key=scores.get)
+            detected = max(scores.items(), key=lambda x: x[1])[0]
             return detected
         
         # No supported language detected - this should trigger an error

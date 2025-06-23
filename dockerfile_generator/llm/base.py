@@ -3,9 +3,10 @@ Base LLM provider interface for vendor-agnostic implementation.
 """
 
 from abc import ABC, abstractmethod
-from typing import Dict, Any, Optional, List
+from typing import List, Optional
 from dataclasses import dataclass
 import tiktoken
+from ..utils.budget_tracker import BudgetTracker
 
 @dataclass
 class LLMResponse:
@@ -24,7 +25,7 @@ class LLMMessage:
 class BaseLLMProvider(ABC):
     """Abstract base class for LLM providers."""
     
-    def __init__(self, api_key: str, budget_tracker: 'BudgetTracker'):
+    def __init__(self, api_key: str, budget_tracker: BudgetTracker):
         self.api_key = api_key
         self.budget_tracker = budget_tracker
         self.encoding = tiktoken.get_encoding("cl100k_base")  # GPT-4 encoding
@@ -33,7 +34,7 @@ class BaseLLMProvider(ABC):
     async def generate(
         self, 
         messages: List[LLMMessage], 
-        model: str = None,
+        model: Optional[str] = None,
         temperature: float = 0.1,
         max_tokens: int = 2000
     ) -> LLMResponse:
@@ -45,7 +46,7 @@ class BaseLLMProvider(ABC):
         self,
         system_prompt: str,
         user_prompt: str,
-        model: str = None,
+        model: Optional[str] = None,
         temperature: float = 0.1,
         max_tokens: int = 2000
     ) -> LLMResponse:

@@ -2,7 +2,7 @@
 Budget tracking utility for managing API costs.
 """
 
-from typing import List, Dict
+from typing import List, Dict, Optional
 from dataclasses import dataclass
 from datetime import datetime
 import json
@@ -13,7 +13,7 @@ class CostRecord:
     timestamp: datetime
     amount: float
     description: str
-    model: str = None
+    model: Optional[str] = None
     tokens: int = 0
 
 class BudgetTracker:
@@ -24,7 +24,7 @@ class BudgetTracker:
         self.costs: List[CostRecord] = []
         self.total_cost = 0.0
     
-    def add_cost(self, amount: float, description: str = "API call", model: str = None, tokens: int = 0):
+    def add_cost(self, amount: float, description: str = "API call", model: Optional[str] = None, tokens: int = 0):
         """Add a cost entry."""
         record = CostRecord(
             timestamp=datetime.now(),
