@@ -266,8 +266,8 @@ class ValidationAgent:
         # Remove common prefixes
         usage = example_usage.strip()
         
-        # Remove script execution prefixes (python, node, bash, etc.)
-        prefixes = ['python ', 'node ', 'bash ', 'sh ', 'ruby ', 'perl ', 'php ']
+        # Remove script execution prefixes (python, node, bash)
+        prefixes = ['python ', 'node ', 'bash ', 'sh ']
         for prefix in prefixes:
             if usage.startswith(prefix):
                 usage = usage[len(prefix):].strip()
@@ -278,14 +278,14 @@ class ValidationAgent:
             parts = shlex.split(usage)
             
             # Remove script filename if present
-            if parts and any(parts[0].endswith(ext) for ext in ['.py', '.js', '.sh', '.rb', '.pl', '.php']):
+            if parts and any(parts[0].endswith(ext) for ext in ['.py', '.js', '.sh', '.bash']):
                 parts = parts[1:]  # Remove script filename
             
             return parts
         except ValueError:
             # Fallback to simple split if shlex fails
             parts = usage.split()
-            if parts and any(parts[0].endswith(ext) for ext in ['.py', '.js', '.sh', '.rb', '.pl', '.php']):
+            if parts and any(parts[0].endswith(ext) for ext in ['.py', '.js', '.sh', '.bash']):
                 parts = parts[1:]
             return parts
     

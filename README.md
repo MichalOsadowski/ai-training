@@ -4,7 +4,7 @@ Automatically generates and validates Dockerfiles for any script using AI agents
 
 ## 🚀 Features
 
-- **Multi-Language Support**: Works with Python, JavaScript, Bash, Ruby, Go, Rust, Java, and more
+- **Multi-Language Support**: Works with Python, JavaScript, and Bash scripts
 - **AI-Powered Generation**: Uses OpenAI GPT models to create optimized Dockerfiles
 - **Automated Validation**: Builds and tests Docker images automatically
 - **Self-Healing**: Automatically refines Dockerfiles based on build/validation failures
@@ -85,7 +85,7 @@ python3 main.py \
 | `--script-path`   | Path to script to dockerize (required) | -                 |
 | `--example-usage` | Example command for validation         | None              |
 | `--output-dir`    | Output directory for generated files   | `./docker_output` |
-| `--budget-limit`  | Maximum budget in USD                  | `5.0`             |
+| `--budget-limit`  | Maximum budget in USD                  | `0.10`            |
 | `--verbose`       | Enable verbose output                  | False             |
 
 ## 📊 Examples
@@ -114,7 +114,7 @@ python3 main.py \
 python3 main.py \
   --api-key sk-... \
   --script-path ../Jit-ai-challenge/line_counter.sh \
-  --example-usage "./line_counter.sh 'Line 1\nLine 2'"
+  --example-usage "bash line_counter.sh 'Single line text'"
 ```
 
 ## 📁 Output Structure
@@ -158,16 +158,18 @@ docker run --rm -it my-script bash
 
 The tool includes built-in budget tracking:
 
-- Estimates costs before API calls
-- Tracks total spending
-- Enforces budget limits
-- Provides cost breakdowns by model
+- **Default Budget**: $0.10 (10 cents) per run - sufficient for most scripts
+- **Typical Costs**: $0.01-$0.05 per simple script, $0.02-$0.08 for complex ones
+- **Budget Enforcement**: Stops execution before exceeding limits
+- **Cost Tracking**: Real-time spending updates with detailed breakdowns
+
+The conservative 10-cent default ensures cost control while allowing successful processing of most scripts.
 
 Example output:
 
 ```
 💰 Total cost: $0.0234
-📊 Budget: $0.0234/$5.00 (0.5%)
+📊 Budget: $0.0234/$0.10 (23.4%)
 ```
 
 ## 🔒 Security Features
@@ -226,7 +228,7 @@ from dockerfile_generator.workflow import DockerfileGeneratorWorkflow
 from dockerfile_generator.utils.budget_tracker import BudgetTracker
 
 # Initialize
-budget_tracker = BudgetTracker(5.0)
+budget_tracker = BudgetTracker(0.10)
 workflow = DockerfileGeneratorWorkflow(
     api_key="sk-...",
     budget_tracker=budget_tracker,
@@ -297,7 +299,6 @@ python -c "import openai; print('API key valid')"
 
 ## 🎯 Roadmap
 
-- [ ] Support for more programming languages
 - [ ] Integration with CI/CD pipelines
 - [ ] Web interface
 - [ ] Batch processing

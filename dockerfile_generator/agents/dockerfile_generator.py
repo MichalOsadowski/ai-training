@@ -135,7 +135,7 @@ class DockerfileGenerator:
         return prompt
     
     def _get_language_specific_guidance(self, language: str) -> str:
-        """Get language-specific Dockerfile guidance."""
+        """Get language-specific Dockerfile guidance for supported languages."""
         
         guidance = {
             'python': """
@@ -166,34 +166,6 @@ class DockerfileGenerator:
             - Handle potential package installations with apt-get if script requires additional tools
             - Example: FROM ubuntu:22.04, COPY script.sh ., ENTRYPOINT ["bash", "script.sh"]
             - AVOID: Alpine, minimal, or scratch images unless you install bash first
-            """,
-            
-            'go': """
-            - Use multi-stage build (golang:alpine for build, alpine for runtime)
-            - Build static binary with CGO_ENABLED=0
-            - Use go mod for dependency management
-            - Final image should be minimal (alpine or scratch)
-            """,
-            
-            'rust': """
-            - Use multi-stage build (rust:alpine for build, alpine for runtime)
-            - Build optimized release binary
-            - Final image should be minimal
-            - Handle cargo dependencies efficiently
-            """,
-            
-            'java': """
-            - Use multi-stage build if compilation needed
-            - Use JRE instead of JDK for runtime
-            - Consider using openjdk:alpine variants
-            - Set appropriate JVM memory settings
-            """,
-            
-            'ruby': """
-            - Use Gemfile if it exists
-            - Consider using ruby:alpine variants
-            - Use bundle install --without development test
-            - Handle both gems and system packages
             """
         }
         

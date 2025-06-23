@@ -44,7 +44,7 @@ def show_usage(api_key=None):
     print("  --script-path ../Jit-ai-challenge/word_reverser.py \\")
     print("  --example-usage \"python word_reverser.py 'Hello World'\" \\")
     print("  --output-dir ./docker_output_advanced \\")
-    print("  --budget-limit 2.0 \\")
+    print("  --budget-limit 0.10 \\")
     print("  --verbose")
     
     print("\n📋 Prerequisites:")
@@ -159,7 +159,7 @@ def run_example(example_number, api_key, verbose=False):
             "script_path": "../Jit-ai-challenge/word_reverser.py",
             "example_usage": "python word_reverser.py 'Hello World'",
             "output_dir": "./docker_output_advanced",
-            "budget_limit": "2.0",
+            "budget_limit": "0.10",
             "verbose": True
         }
     }

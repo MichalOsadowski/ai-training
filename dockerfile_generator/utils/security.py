@@ -34,11 +34,14 @@ class SecurityValidator:
         '.reg', '.vb', '.vbs', '.js', '.jse', '.ws', '.wsf', '.wsh'
     }
     
-    # Allowed script extensions
+    # Allowed script extensions for supported languages
     ALLOWED_EXTENSIONS = {
-        '.py', '.js', '.sh', '.bash', '.zsh', '.fish', '.ps1', '.rb', '.pl',
-        '.php', '.lua', '.go', '.rs', '.java', '.kt', '.swift', '.dart',
-        '.scala', '.clj', '.hs', '.ml', '.r', '.jl', '.nim', '.zig'
+        '.py',      # Python
+        '.js',      # JavaScript
+        '.mjs',     # JavaScript modules
+        '.ts',      # TypeScript (runs on Node)
+        '.sh',      # Bash shell
+        '.bash'     # Bash shell
     }
     
     def __init__(self):

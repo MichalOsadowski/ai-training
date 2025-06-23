@@ -19,15 +19,16 @@ def create_parser() -> argparse.ArgumentParser:
     """Create command line argument parser."""
     
     parser = argparse.ArgumentParser(
-        description="Generate optimized Dockerfiles for scripts using AI agents",
+        description="Generate optimized Dockerfiles for Python, JavaScript, and Bash scripts using AI agents",
         formatter_class=argparse.RawDescriptionHelpFormatter,
         epilog="""
 Examples:
   %(prog)s --api-key sk-your-api-key --script-path script.py
   %(prog)s --api-key sk-your-api-key --script-path script.py --example "python script.py 'hello world'"
   %(prog)s --api-key sk-your-api-key --script-path script.js --output ./docker_output --budget 2.0
-  %(prog)s --api-key sk-your-api-key --script-path script.sh --example "bash script.sh --help" --verbose
+  %(prog)s --api-key sk-your-api-key --script-path script.sh --example "bash script.sh 'test input'" --verbose
 
+Supported Languages: Python (.py), JavaScript (.js, .mjs, .ts), Bash (.sh, .bash)
 For more information, see: https://github.com/your-repo/ai-training
         """
     )
@@ -64,8 +65,8 @@ For more information, see: https://github.com/your-repo/ai-training
     parser.add_argument(
         "--budget",
         type=float,
-        default=5.0,
-        help="Maximum budget for API calls in USD (default: 5.0)"
+        default=0.10,
+        help="Maximum budget for API calls in USD (default: 0.10)"
     )
     
     parser.add_argument(
@@ -103,8 +104,8 @@ def validate_arguments(args) -> tuple[bool, Optional[str]]:
     if args.budget <= 0:
         return False, "Budget must be greater than 0"
     
-    if args.budget > 50:
-        return False, "Budget seems unusually high (>$50). Please confirm this is correct."
+    if args.budget > 5:
+        return False, "Budget seems unusually high (>$5). Please confirm this is correct."
     
     return True, None
 

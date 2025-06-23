@@ -143,6 +143,12 @@ class DockerfileGeneratorWorkflow:
                 script_content=state.script_content
             )
             
+            # Check if language is supported
+            if analysis.language == 'unsupported':
+                state.error = "Unsupported script language. This tool supports only Python (.py), JavaScript (.js, .mjs, .ts), and Bash (.sh, .bash) scripts."
+                state.current_step = "complete"
+                return state
+            
             state.language = analysis.language
             state.runtime_version = analysis.runtime_version
             state.dependencies = analysis.dependencies

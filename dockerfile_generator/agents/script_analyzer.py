@@ -24,46 +24,18 @@ class ScriptAnalysis:
 class ScriptAnalyzer:
     """Analyzes scripts to determine Docker requirements."""
     
-    # Language detection patterns
+    # Language detection patterns - Support for Python, JavaScript, and Bash only
     LANGUAGE_PATTERNS = {
         'python': [r'#!/usr/bin/env python', r'#!/usr/bin/python', r'import ', r'from .* import', r'def ', r'if __name__'],
         'javascript': [r'#!/usr/bin/env node', r'#!/usr/bin/node', r'require\(', r'console\.log', r'function ', r'const ', r'let ', r'var '],
-        'bash': [r'#!/bin/bash', r'#!/bin/sh', r'#!/usr/bin/env bash', r'echo ', r'if \[', r'for .*in'],
-        'ruby': [r'#!/usr/bin/env ruby', r'#!/usr/bin/ruby', r'require ', r'puts ', r'def ', r'class '],
-        'perl': [r'#!/usr/bin/env perl', r'#!/usr/bin/perl', r'use ', r'print ', r'sub '],
-        'php': [r'#!/usr/bin/env php', r'#!/usr/bin/php', r'<\?php', r'echo ', r'function '],
-        'go': [r'package main', r'import ', r'func main', r'fmt\.'],
-        'rust': [r'fn main', r'use ', r'extern crate', r'println!'],
-        'java': [r'public class', r'public static void main', r'import java'],
-        'kotlin': [r'fun main', r'import kotlin', r'class '],
-        'swift': [r'import Foundation', r'func main', r'print\('],
-        'dart': [r'void main', r'import \'dart:', r'print\('],
-        'scala': [r'object .* extends App', r'def main', r'import scala'],
-        'r': [r'#!/usr/bin/env Rscript', r'library\(', r'install\.packages'],
-        'julia': [r'#!/usr/bin/env julia', r'using ', r'println\('],
-        'lua': [r'#!/usr/bin/env lua', r'#!/usr/bin/lua', r'require ', r'print\('],
-        'powershell': [r'#!/usr/bin/env pwsh', r'Write-Host', r'param\(', r'\$']
+        'bash': [r'#!/bin/bash', r'#!/bin/sh', r'#!/usr/bin/env bash', r'echo ', r'if \[', r'for .*in']
     }
     
-    # Base images for different languages
+    # Base images for supported languages
     BASE_IMAGES = {
         'python': 'python:3.11-slim',
         'javascript': 'node:18-alpine',
-        'bash': 'ubuntu:22.04',
-        'ruby': 'ruby:3.1-alpine',
-        'perl': 'perl:5.36-slim',
-        'php': 'php:8.1-cli-alpine',
-        'go': 'golang:1.19-alpine',
-        'rust': 'rust:1.65-alpine',
-        'java': 'openjdk:17-jre-slim',
-        'kotlin': 'openjdk:17-jre-slim',
-        'swift': 'swift:5.7',
-        'dart': 'dart:2.18',
-        'scala': 'openjdk:17-jre-slim',
-        'r': 'r-base:4.2.2',
-        'julia': 'julia:1.8',
-        'lua': 'lua:5.4-alpine',
-        'powershell': 'mcr.microsoft.com/powershell:7.2-alpine-3.14'
+        'bash': 'ubuntu:22.04'
     }
     
     def __init__(self, llm_provider: BaseLLMProvider):
@@ -118,30 +90,14 @@ class ScriptAnalyzer:
             '.mjs': 'javascript',
             '.ts': 'javascript',  # TypeScript runs on Node
             '.sh': 'bash',
-            '.bash': 'bash',
-            '.zsh': 'bash',
-            '.fish': 'bash',
-            '.rb': 'ruby',
-            '.pl': 'perl',
-            '.php': 'php',
-            '.go': 'go',
-            '.rs': 'rust',
-            '.java': 'java',
-            '.kt': 'kotlin',
-            '.swift': 'swift',
-            '.dart': 'dart',
-            '.scala': 'scala',
-            '.r': 'r',
-            '.R': 'r',
-            '.jl': 'julia',
-            '.lua': 'lua',
-            '.ps1': 'powershell'
+            '.bash': 'bash'
         }
         
         if path.suffix.lower() in ext_map:
             return ext_map[path.suffix.lower()]
         
-        # Pattern matching
+        # For files without recognized extensions, check content patterns
+        # but only for supported languages
         content_lower = content.lower()
         scores = {}
         
@@ -152,11 +108,13 @@ class ScriptAnalyzer:
                 score += matches
             scores[language] = score
         
-        # Return language with highest score
-        if scores:
-            return max(scores, key=scores.get)
+        # Return language with highest score, but only if it has a reasonable score
+        if scores and max(scores.values()) > 0:
+            detected = max(scores, key=scores.get)
+            return detected
         
-        return 'bash'  # Default fallback
+        # No supported language detected - this should trigger an error
+        return 'unsupported'
     
     def _extract_dependencies(self, content: str, language: str) -> List[str]:
         """Extract dependencies based on language."""
@@ -183,17 +141,7 @@ class ScriptAnalyzer:
             matches = re.findall(import_pattern, content)
             dependencies.extend(matches)
             
-        elif language == 'ruby':
-            # Extract requires
-            require_pattern = r'require\s+[\'"]([^\'\"]+)[\'"]'
-            matches = re.findall(require_pattern, content)
-            dependencies.extend(matches)
-            
-        elif language == 'go':
-            # Extract imports
-            import_pattern = r'import\s+[\'"]([^\'\"]+)[\'"]'
-            matches = re.findall(import_pattern, content)
-            dependencies.extend(matches)
+
         
         # Remove duplicates and common stdlib modules
         return list(set(dep for dep in dependencies if dep and not self._is_stdlib_module(dep, language)))
@@ -203,7 +151,7 @@ class ScriptAnalyzer:
         stdlib_modules = {
             'python': {'os', 'sys', 'json', 'time', 'datetime', 'pathlib', 're', 'math', 'random', 'collections'},
             'javascript': {'fs', 'path', 'http', 'https', 'url', 'querystring', 'crypto', 'util'},
-            'go': {'fmt', 'os', 'io', 'net', 'time', 'strings', 'strconv', 'encoding/json'}
+            'bash': set()  # Bash doesn't have a module system like Python/JS
         }
         
         return module in stdlib_modules.get(language, set())
@@ -240,21 +188,7 @@ class ScriptAnalyzer:
         commands = {
             'python': f'python {filename}',
             'javascript': f'node {filename}',
-            'bash': f'bash {filename}',
-            'ruby': f'ruby {filename}',
-            'perl': f'perl {filename}',
-            'php': f'php {filename}',
-            'go': f'go run {filename}',
-            'rust': f'cargo run --bin {Path(filename).stem}',
-            'java': f'java {Path(filename).stem}',
-            'kotlin': f'kotlin {Path(filename).stem}Kt',
-            'swift': f'swift {filename}',
-            'dart': f'dart {filename}',
-            'scala': f'scala {filename}',
-            'r': f'Rscript {filename}',
-            'julia': f'julia {filename}',
-            'lua': f'lua {filename}',
-            'powershell': f'pwsh {filename}'
+            'bash': f'bash {filename}'
         }
         
         return commands.get(language, f'./{filename}')
