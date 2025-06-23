@@ -1,0 +1,13 @@
+openai>=1.0.0
+langgraph>=0.0.40
+langchain>=0.1.0
+langchain-openai>=0.0.5
+docker>=6.0.0
+click>=8.0.0
+pydantic>=2.0.0
+python-dotenv>=1.0.0
+tiktoken>=0.5.0
+colorama>=0.4.6
+rich>=13.0.0
+pytest>=7.0.0
+pytest-asyncio>=0.21.0 
