@@ -102,7 +102,4 @@ dmypy.json
 # Project specific
 docker_output/
 *.log
-test_*.py
-test_*.js
-test_*.sh
 .DS_Store 
